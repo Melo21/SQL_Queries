@@ -1,0 +1,27 @@
+#Card Launch Success 
+
+--how many cards to issue first month 
+with card_data as (
+  SELECT 
+    MAKE_DATE(issue_year, issue_month, 1) as dates, 
+    card_name, 
+    sum(issued_amount) as sum_rev, 
+    MIN(
+      MAKE_DATE(issue_year, issue_month, 1)
+    ) OVER (PARTITION BY card_name) as launch_date 
+  FROM 
+    monthly_cards_issued 
+  GROUP BY 
+    issue_year, 
+    issue_month, 
+    2
+) 
+select 
+  card_name, 
+  sum_rev 
+from 
+  card_data 
+where 
+  launch_date = dates 
+order by 
+  2 desc
